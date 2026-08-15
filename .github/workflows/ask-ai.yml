@@ -75,7 +75,7 @@ jobs:
         print(f'Sending request to deployment: {deployment}...')
         
         # response = requests.post(url, json=payload, headers=headers)
-        response = client.responses.create(model=os.environ['FOUNDRY_DEPLOYMENT'],input="What is the capital of France?")
+        response = client.responses.create(model=os.environ['FOUNDRY_DEPLOYMENT'],input="What is the capital of France?",)
 
         text_value = response.output[1].content[0].text
         status_value = response.output[1].status
