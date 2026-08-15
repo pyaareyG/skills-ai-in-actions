@@ -9,7 +9,7 @@ jobs:
     
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -18,7 +18,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        pip install requests
+        pip install requests openai
 
     - name: Read Static Configurations
       id: config
@@ -71,7 +71,7 @@ jobs:
             'max_tokens': int(os.environ['FOUNDRY_TOKENS'])
         }
         client = OpenAI(
-          base_url={base_url},
+          base_url=base_url,
           api_key=os.environ['FOUNDRY_API_KEY']
         )
         
@@ -87,9 +87,9 @@ jobs:
         status_value = response.output[1].status
         
         # if response.status_code == 200:
-        if response.output[1].status == "completed"
+        if response.output[1].status == "completed":
             print('Successfully connected to Foundry Model!')
-            print('{text_value}')
+            print(f'{text_value}')
             # print(json.dumps(response.json(), indent=2))
         else:
             print(f'Failed with status code: {response.status_code}')
