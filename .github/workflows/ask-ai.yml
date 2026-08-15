@@ -46,11 +46,14 @@ jobs:
         import os
         import requests
         import json
-
+        from openai import OpenAI
+        
         # Construct the target URL using the static configs
         base_url = os.environ['FOUNDRY_ENDPOINT'].rstrip('/')
         deployment = os.environ['FOUNDRY_DEPLOYMENT']
         api_version = os.environ['FOUNDRY_API_VERSION']
+
+        
         
         # Target URI pattern for Azure AI / Foundry model deployments
         url = f'{base_url}'
@@ -60,20 +63,28 @@ jobs:
             'api-key': os.environ['FOUNDRY_API_KEY'],
             'Content-Type': 'application/json'
         }
-
+        
         # Payload mixing static limits with user prompt
         payload = {
             'messages': [{'role': 'user', 'content': 'Generate a 3-step deployment checklist for CI/CD.'}],
             'temperature': float(os.environ['FOUNDRY_TEMP']),
             'max_tokens': int(os.environ['FOUNDRY_TOKENS'])
         }
-
-        print(f'Sending request to deployment: {deployment}...')
-        response = requests.post(url, json=payload, headers=headers)
+        client = OpenAI (base_url={base_url},api_key=os.environ['FOUNDRY_API_KEY'])
         
-        if response.status_code == 200:
+        print(f'Sending request to deployment: {deployment}...')
+        
+        # response = requests.post(url, json=payload, headers=headers)
+        response = client.responses.create(model=os.environ['FOUNDRY_DEPLOYMENT'],input="What is the capital of France?")
+
+        text_value = response.output[1].content[0].text
+        status_value = response.output[1].status
+        
+        # if response.status_code == 200:
+        if response.output[1].status == "completed"
             print('Successfully connected to Foundry Model!')
-            print(json.dumps(response.json(), indent=2))
+            print('{text_value}')
+            # print(json.dumps(response.json(), indent=2))
         else:
             print(f'Failed with status code: {response.status_code}')
             print(response.text)
