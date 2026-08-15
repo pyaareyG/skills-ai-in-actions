@@ -53,7 +53,7 @@ jobs:
         api_version = os.environ['FOUNDRY_API_VERSION']
         
         # Target URI pattern for Azure AI / Foundry model deployments
-        url = f'{base_url}
+        url = f'{base_url}'
         # /openai/deployments/{deployment}/chat/completions?api-version={api_version}'
         print(url)
         headers = {
