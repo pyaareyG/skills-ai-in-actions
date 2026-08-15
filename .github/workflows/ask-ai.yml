@@ -7,6 +7,10 @@ jobs:
   ask-ai:
     runs-on: ubuntu-latest
 
+    jobs:
+  call-foundry-model:
+    runs-on: ubuntu-latest
+    
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -18,37 +22,63 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        pip install azure-identity requests
+        pip install requests
 
-    - name: Log in to Azure
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Read Static Configurations
+      id: config
+      run: |
+        # Parse the static configuration file using jq (pre-installed on GitHub runners)
+        ENDPOINT=$(jq -r '.project_endpoint' .github/foundry-config.json)
+        API_VERSION=$(jq -r '.api_version' .github/foundry-config.json)
+        DEPLOYMENT=$(jq -r '.model_deployment_name' .github/foundry-config.json)
+        TEMP=$(jq -r '.temperature' .github/foundry-config.json)
+        TOKENS=$(jq -r '.max_tokens' .github/foundry-config.json)
+        
+        # Save them as environment variables for subsequent steps
+        echo "FOUNDRY_ENDPOINT=$ENDPOINT" >> $GITHUB_ENV
+        echo "FOUNDRY_API_VERSION=$API_VERSION" >> $GITHUB_ENV
+        echo "FOUNDRY_DEPLOYMENT=$DEPLOYMENT" >> $GITHUB_ENV
+        echo "FOUNDRY_TEMP=$TEMP" >> $GITHUB_ENV
+        echo "FOUNDRY_TOKENS=$TOKENS" >> $GITHUB_ENV
 
-    - name: Call Foundry Model Endpoint
+    - name: Execute Model Call
       env:
-        FOUNDRY_ENDPOINT: ${{ secrets.FOUNDRY_PROJECT_ENDPOINT }}
+        # Sensitive values injected securely from secrets
+        FOUNDRY_API_KEY: ${{ secrets.FOUNDRY_API_KEY }}
       run: |
         python -c "
         import os
         import requests
-        from azure.identity import DefaultAzureCredential
+        import json
 
-        # Obtain the Bearer token for Azure AI resources
-        credential = DefaultAzureCredential()
-        token = credential.get_token('https://azure.com')
+        # Construct the target URL using the static configs
+        base_url = os.environ['FOUNDRY_ENDPOINT'].rstrip('/')
+        deployment = os.environ['FOUNDRY_DEPLOYMENT']
+        api_version = os.environ['FOUNDRY_API_VERSION']
+        
+        # Target URI pattern for Azure AI / Foundry model deployments
+        url = f'{base_url}/openai/deployments/{deployment}/chat/completions?api-version={api_version}'
 
         headers = {
-            'Authorization': f'Bearer {token.token}',
+            'api-key': os.environ['FOUNDRY_API_KEY'],
             'Content-Type': 'application/json'
         }
 
-        # Example payload structure for the Foundry Responses API
+        # Payload mixing static limits with user prompt
         payload = {
-            'messages': [{'role': 'user', 'content': 'Hello from GitHub Actions!'}]
+            'messages': [{'role': 'user', 'content': 'Generate a 3-step deployment checklist for CI/CD.'}],
+            'temperature': float(os.environ['FOUNDRY_TEMP']),
+            'max_tokens': int(os.environ['FOUNDRY_TOKENS'])
         }
 
-        response = requests.post(os.environ['FOUNDRY_ENDPOINT'] + '/chat/completions', json=payload, headers=headers)
-        print('Status Code:', response.status_code)
-        print('Response:', response.json())
+        print(f'Sending request to deployment: {deployment}...')
+        response = requests.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            print('Successfully connected to Foundry Model!')
+            print(json.dumps(response.json(), indent=2))
+        else:
+            print(f'Failed with status code: {response.status_code}')
+            print(response.text)
+            exit(1)
         "
