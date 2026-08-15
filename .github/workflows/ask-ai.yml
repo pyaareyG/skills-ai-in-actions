@@ -6,10 +6,6 @@ permissions:
 jobs:
   ask-ai:
     runs-on: ubuntu-latest
-
-    jobs:
-  call-foundry-model:
-    runs-on: ubuntu-latest
     
     steps:
     - name: Checkout Code
