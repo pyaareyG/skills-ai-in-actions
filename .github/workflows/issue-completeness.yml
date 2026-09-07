@@ -11,6 +11,8 @@ jobs:
   analyze:
     name: AI Issue Completeness
     runs-on: ubuntu-latest
+    env:
+      COPILOT_GITHUB_TOKEN: ${{secrets.PERSONNEL_ACTION_TOKEN}}
     steps:
       - name: "Checkout Repository"
         uses: actions/checkout@v4
@@ -20,14 +22,6 @@ jobs:
           npm install -g @github/copilot
           # Ensure copilot alias is registered in the environment
           echo "alias copilot='github-copilot-cli'" >> $GITHUB_ENV
-
-      - name: "Authenticate Copilot CLI"
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONNEL_ACCESS_TOKEN }}
-        run: |
-          # Use the built-in Actions Token to authenticate the CLI session
-          echo "Authenticating Copilot CLI session..."
-          # copilot auth "$GITHUB_TOKEN"
 
       - name: "Run Claude Sonnet 5 Analysis"
         id: ai-response
