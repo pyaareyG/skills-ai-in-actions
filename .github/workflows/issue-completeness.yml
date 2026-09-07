@@ -14,11 +14,6 @@ jobs:
     steps:
       - name: "Checkout Repository"
         uses: actions/checkout@v4
-      
-      - name: "Setup Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
 
       - name: "Install GitHub Copilot CLI"
         run: |
@@ -32,7 +27,7 @@ jobs:
         run: |
           # Use the built-in Actions Token to authenticate the CLI session
           echo "Authenticating Copilot CLI session..."
-          copilot auth "$GITHUB_TOKEN"
+          # copilot auth "$GITHUB_TOKEN"
 
       - name: "Run Claude Sonnet 5 Analysis"
         id: ai-response
@@ -50,7 +45,7 @@ jobs:
           # --allow-all-tools gives the model autonomy to read workspace files
           copilot request "$PROMPT" \
             --model claude-sonnet-5 \
-            --allow-all-tools \
+            --allow-all-tools -p \
             --add-dir . > analysis_report.md
             
           echo "Analysis completed successfully."
