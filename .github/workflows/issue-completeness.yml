@@ -22,7 +22,7 @@ jobs:
 
       - name: "Install GitHub Copilot CLI"
         run: |
-          npm install -g @github/copilot-cli
+          npm install -g @github/copilot
           # Ensure copilot alias is registered in the environment
           echo "alias copilot='github-copilot-cli'" >> $GITHUB_ENV
 
