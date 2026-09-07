@@ -40,7 +40,7 @@ jobs:
           copilot -p "$PROMPT" \
             --model claude-sonnet-5 \
             --allow-all-tools \
-            --add-dir . > analysis_report.md
+            --add-dir
             
           echo "Analysis completed successfully."
 
