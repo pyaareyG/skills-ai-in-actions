@@ -19,7 +19,7 @@ jobs:
           {
             echo "## AI Response<<EOF"
             echo "$RESPONSE"
-            echo ""EOF"
+            echo "EOF"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Display AI response
