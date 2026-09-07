@@ -18,7 +18,7 @@ jobs:
       - name: "Setup Node.js"
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: "Install GitHub Copilot CLI"
         run: |
@@ -32,9 +32,9 @@ jobs:
         run: |
           # Use the built-in Actions Token to authenticate the CLI session
           echo "Authenticating Copilot CLI session..."
-          github-copilot-cli auth "$GITHUB_TOKEN"
+          copilot auth "$GITHUB_TOKEN"
 
-      - name: "Run Claude Sonnet 3.5 Analysis"
+      - name: "Run Claude Sonnet 5 Analysis"
         id: ai-response
         env:
           ISSUE_TITLE: ${{ github.event.issue.title }}
@@ -48,7 +48,7 @@ jobs:
           
           # Run Copilot CLI in headless execution mode
           # --allow-all-tools gives the model autonomy to read workspace files
-          github-copilot-cli request "$PROMPT" \
+          copilot request "$PROMPT" \
             --model claude-sonnet-5 \
             --allow-all-tools \
             --add-dir . > analysis_report.md
