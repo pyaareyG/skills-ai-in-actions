@@ -3,24 +3,23 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
   models: read
+
 jobs:
   ask-ai:
     runs-on: ubuntu-latest
-    env:
-      COPILOT_GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
     steps:
       - name: AI Inference
         id: ai-response
-        run: |
-          npm install -g @github/copilot
-          RESPONSE=$(copilot --model claude-sonnet-5 --no-color -p "Give me a programming joke")
-          {
-            echo "## AI Response<<EOF"
-            echo "$RESPONSE"
-            echo ""EOF"
-          } >> "$GITHUB_STEP_SUMMARY"
+        uses: actions/ai-inference@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            Give me a programming joke.
 
-      - name: Display AI response
-        run: echo "${{ steps.ai-response.outputs.response }}
+      - name: Display AI Response
+        run: |
+          echo "## 🤖 AI Response" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.ai-response.outputs.response }}" >> $GITHUB_STEP_SUMMARY
