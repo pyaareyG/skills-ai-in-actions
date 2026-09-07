@@ -43,9 +43,9 @@ jobs:
           
           # Run Copilot CLI in headless execution mode
           # --allow-all-tools gives the model autonomy to read workspace files
-          copilot request "$PROMPT" \
+          copilot -p "$PROMPT" \
             --model claude-sonnet-5 \
-            --allow-all-tools -p \
+            --allow-all-tools \
             --add-dir . > analysis_report.md
             
           echo "Analysis completed successfully."
