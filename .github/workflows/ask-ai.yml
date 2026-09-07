@@ -3,17 +3,19 @@ on:
   workflow_dispatch:
 
 permissions:
+  contents: read
   models: read
 jobs:
   ask-ai:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: AI Inference
         id: ai-response
         uses: actions/ai-inference@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          model: claude-sonnet-5
           prompt: |
             Give me a programming joke.
 
