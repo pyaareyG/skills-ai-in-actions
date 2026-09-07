@@ -23,4 +23,4 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Display AI response
-        run: echo "${{ steps.ai-response.outputs.response }}
+        run: echo "${{ steps.ai-response.outputs.response }}"
